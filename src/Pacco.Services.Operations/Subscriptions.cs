@@ -40,7 +40,7 @@ namespace Pacco.Services.Operations
             var commands = new List<Command>();
             var events = new List<Event>();
             var rejectedEvents = new List<RejectedEvent>();
-            var assemblyName = new AssemblyName("Pacco.Services.Operationsz");
+            var assemblyName = new AssemblyName("Pacco.Services.Operations.Messages");
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
             foreach (var (_, serviceMessages) in servicesMessages)
