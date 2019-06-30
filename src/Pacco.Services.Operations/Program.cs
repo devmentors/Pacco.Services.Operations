@@ -3,6 +3,7 @@ using Convey;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Events;
 using Convey.CQRS.Queries;
+using Convey.MessageBrokers.RabbitMQ;
 using Convey.WebApi;
 using Convey.WebApi.CQRS;
 using Microsoft.AspNetCore;
@@ -20,12 +21,16 @@ namespace Pacco.Services.Operations
                     .AddCommandHandlers()
                     .AddEventHandlers()
                     .AddQueryHandlers()
-                    .AddWebApi())
+                    .AddRabbitMq()
+                    .AddWebApi()
+                    .Build())
                 .Configure(app => app
                     .UseErrorHandler()
-                    .UsePublicMessages()
+                    .UsePublicContracts()
                     .UseEndpoints(endpoints => endpoints
-                        .Get("", ctx => ctx.Response.WriteAsync("Welcome to Pacco Operations Service!"))))
+                        .Get("", ctx => ctx.Response.WriteAsync("Welcome to Pacco Operations Service!")))
+                    .UseRabbitMq()
+                    .SubscribeMessages())
                 .Build()
                 .RunAsync();
     }

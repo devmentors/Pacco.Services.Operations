@@ -1,0 +1,14 @@
+{
+  "customers-service": {
+    "namespace": "customers",
+    "commands": ["create_customer"],
+    "events": ["customer_created"],
+    "rejectedEvents": ["create_customer_rejected"]
+  },
+  "parcels-service": {
+    "namespace": "parcels",
+    "commands": ["add_parcel", "delete_parcel"],
+    "events": ["parcel_added", "parcel_deleted"],
+    "rejectedEvents": ["add_parcel_rejected", "delete_parcel_rejected"]
+  }
+}
