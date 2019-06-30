@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Events;
 using Convey.MessageBrokers;
-using Convey.WebApi;
 using Newtonsoft.Json;
 using Pacco.Services.Operations.Types;
 using Microsoft.Extensions.DependencyInjection;
+using RejectedEvent = Pacco.Services.Operations.Types.RejectedEvent;
 
 namespace Pacco.Services.Operations
 {
@@ -17,72 +19,111 @@ namespace Pacco.Services.Operations
     {
         public static IBusSubscriber SubscribeMessages(this IBusSubscriber subscriber)
         {
-            var messages = File.ReadAllText("messages.json");
+            const string path = "messages.json";
+            if (!File.Exists(path))
+            {
+                return subscriber;
+            }
+
+            var messages = File.ReadAllText(path);
+            if (string.IsNullOrWhiteSpace(messages))
+            {
+                return subscriber;
+            }
+
             var servicesMessages = JsonConvert.DeserializeObject<IDictionary<string, ServiceMessages>>(messages);
-            var commands = new List<ICommand>();
-            var events = new List<IEvent>();
-            var rejectedEvents = new List<IEvent>();
+            if (!servicesMessages.Any())
+            {
+                return subscriber;
+            }
+
+            var commands = new List<Command>();
+            var events = new List<Event>();
+            var rejectedEvents = new List<RejectedEvent>();
+            var assemblyName = new AssemblyName("Pacco.Services.Operations.Messages");
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
             foreach (var (_, serviceMessages) in servicesMessages)
             {
                 var @namespace = serviceMessages.Namespace;
-                commands.AddRange(BindMessages<Command>(@namespace, serviceMessages.Commands));
-                events.AddRange(BindMessages<Event>(@namespace, serviceMessages.Events));
-                rejectedEvents.AddRange(BindMessages<Types.RejectedEvent>(@namespace, serviceMessages.RejectedEvents));
+                commands.AddRange(BindMessages<Command>(moduleBuilder, @namespace, serviceMessages.Commands));
+                events.AddRange(BindMessages<Event>(moduleBuilder, @namespace, serviceMessages.Events));
+                rejectedEvents.AddRange(BindMessages<RejectedEvent>(moduleBuilder, @namespace,
+                    serviceMessages.RejectedEvents));
             }
 
             SubscribeCommands(subscriber, commands);
             SubscribeEvents(subscriber, events);
-            SubscribeEvents(subscriber, rejectedEvents);
+            SubscribeRejectedEvents(subscriber, rejectedEvents);
 
             return subscriber;
         }
 
-        private static IEnumerable<T> BindMessages<T>(string @namespace, IEnumerable<string> messages)
-            where T : IMessage, new()
+        private static IEnumerable<T> BindMessages<T>(ModuleBuilder moduleBuilder, string @namespace,
+            IEnumerable<string> messages) where T : class, IMessage, new()
         {
+
             foreach (var message in messages)
             {
-                var instance = new T();
-                var attribute = instance.GetType().GetCustomAttribute<MessageNamespaceAttribute>();
-                attribute.Bind(p => p.Namespace, @namespace);
-                attribute.Bind(p => p.Key, message);
+                var type = typeof(T);
+                var typeBuilder = moduleBuilder.DefineType(message, TypeAttributes.Public, type);
+                var attributeConstructorParams = new[] {typeof(string), typeof(string), typeof(bool)};
+                var constructorInfo = typeof(MessageNamespaceAttribute).GetConstructor(attributeConstructorParams);
+                var customAttributeBuilder = new CustomAttributeBuilder(constructorInfo,
+                    new object[] {@namespace, message, true});
+                typeBuilder.SetCustomAttribute(customAttributeBuilder);
+                var newType = typeBuilder.CreateType();
+                var instance = Activator.CreateInstance(newType);
 
-                yield return instance;
+                yield return instance as T;
             }
         }
 
-        private static void SubscribeCommands<T>(IBusSubscriber subscriber, IEnumerable<T> messages)
-            where T : class, ICommand
+        private static void SubscribeCommands(IBusSubscriber subscriber, IEnumerable<ICommand> messages)
+        {
+            const string methodName = nameof(IBusSubscriber.Subscribe);
+            foreach (var message in messages)
+            {
+                var subscribeMethod = subscriber.GetType().GetMethod(methodName);
+                
+                Task Handle(IServiceProvider sp, ICommand command, ICorrelationContext ctx) =>
+                    sp.GetService<ICommandHandler<ICommand>>().HandleAsync(message);
+
+                subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
+                    new object[] {(Func<IServiceProvider, ICommand, ICorrelationContext, Task>) Handle});
+            }
+        }
+
+        private static void SubscribeEvents(IBusSubscriber subscriber, IEnumerable<IEvent> messages)
         {
             const string methodName = nameof(IBusSubscriber.Subscribe);
             foreach (var message in messages)
             {
                 var subscribeMethod = subscriber.GetType().GetMethod(methodName);
 
-                Task Handle(IServiceProvider sp, T command, ICorrelationContext ctx) =>
-                    sp.GetService<ICommandHandler<T>>().HandleAsync(message);
+                Task Handle(IServiceProvider sp, IEvent @event, ICorrelationContext ctx) =>
+                    sp.GetService<IEventHandler<IEvent>>().HandleAsync(message);
 
-                subscribeMethod.MakeGenericMethod(typeof(ICommand)).Invoke(subscriber,
-                    new object[] {(Func<IServiceProvider, T, ICorrelationContext, Task>) Handle});
+                subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
+                    new object[] {(Func<IServiceProvider, IEvent, ICorrelationContext, Task>) Handle});
             }
         }
 
-        private static void SubscribeEvents<T>(IBusSubscriber subscriber, IEnumerable<T> messages)
-            where T : class, IEvent
+        private static void SubscribeRejectedEvents(IBusSubscriber subscriber, IEnumerable<IRejectedEvent> messages)
         {
             const string methodName = nameof(IBusSubscriber.Subscribe);
             foreach (var message in messages)
             {
                 var subscribeMethod = subscriber.GetType().GetMethod(methodName);
 
-                Task Handle(IServiceProvider sp, T @event, ICorrelationContext ctx) =>
-                    sp.GetService<IEventHandler<T>>().HandleAsync(message);
+                Task Handle(IServiceProvider sp, IEvent @event, ICorrelationContext ctx) =>
+                    sp.GetService<IEventHandler<IRejectedEvent>>().HandleAsync(message);
 
-                subscribeMethod.MakeGenericMethod(typeof(IEvent)).Invoke(subscriber,
-                    new object[] {(Func<IServiceProvider, T, ICorrelationContext, Task>) Handle});
+                subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
+                    new object[] {(Func<IServiceProvider, IRejectedEvent, ICorrelationContext, Task>) Handle});
             }
         }
-
+        
         private class ServiceMessages
         {
             public string Namespace { get; set; }
