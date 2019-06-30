@@ -40,7 +40,7 @@ namespace Pacco.Services.Operations
             var commands = new List<Command>();
             var events = new List<Event>();
             var rejectedEvents = new List<RejectedEvent>();
-            var assemblyName = new AssemblyName("Pacco.Services.Operations.Messages");
+            var assemblyName = new AssemblyName("Pacco.Services.Operationsz");
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
             foreach (var (_, serviceMessages) in servicesMessages)
@@ -62,7 +62,6 @@ namespace Pacco.Services.Operations
         private static IEnumerable<T> BindMessages<T>(ModuleBuilder moduleBuilder, string @namespace,
             IEnumerable<string> messages) where T : class, IMessage, new()
         {
-
             foreach (var message in messages)
             {
                 var type = typeof(T);
@@ -87,7 +86,7 @@ namespace Pacco.Services.Operations
                 var subscribeMethod = subscriber.GetType().GetMethod(methodName);
                 
                 Task Handle(IServiceProvider sp, ICommand command, ICorrelationContext ctx) =>
-                    sp.GetService<ICommandHandler<ICommand>>().HandleAsync(message);
+                    sp.GetService<ICommandHandler<ICommand>>().HandleAsync(command);
 
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
                     new object[] {(Func<IServiceProvider, ICommand, ICorrelationContext, Task>) Handle});
@@ -102,7 +101,7 @@ namespace Pacco.Services.Operations
                 var subscribeMethod = subscriber.GetType().GetMethod(methodName);
 
                 Task Handle(IServiceProvider sp, IEvent @event, ICorrelationContext ctx) =>
-                    sp.GetService<IEventHandler<IEvent>>().HandleAsync(message);
+                    sp.GetService<IEventHandler<IEvent>>().HandleAsync(@event);
 
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
                     new object[] {(Func<IServiceProvider, IEvent, ICorrelationContext, Task>) Handle});
@@ -116,14 +115,14 @@ namespace Pacco.Services.Operations
             {
                 var subscribeMethod = subscriber.GetType().GetMethod(methodName);
 
-                Task Handle(IServiceProvider sp, IEvent @event, ICorrelationContext ctx) =>
-                    sp.GetService<IEventHandler<IRejectedEvent>>().HandleAsync(message);
+                Task Handle(IServiceProvider sp, IRejectedEvent @event, ICorrelationContext ctx) =>
+                    sp.GetService<IEventHandler<IRejectedEvent>>().HandleAsync(@event);
 
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
                     new object[] {(Func<IServiceProvider, IRejectedEvent, ICorrelationContext, Task>) Handle});
             }
         }
-        
+
         private class ServiceMessages
         {
             public string Namespace { get; set; }

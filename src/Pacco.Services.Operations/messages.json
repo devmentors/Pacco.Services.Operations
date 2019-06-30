@@ -1,4 +1,26 @@
 {
+  "availability-service": {
+    "namespace": "availability",
+    "commands": [
+      "add_resource",
+      "delete_resource",
+      "release_resource",
+      "reserve_resource"
+    ],
+    "events": [
+      "resource_added",
+      "resource_deleted",
+      "resource_reservation_released",
+      "resource_reservation_canceled",
+      "resource_reserved"
+    ],
+    "rejectedEvents": [
+      "add_resource_rejected",
+      "delete_resource_rejected",
+      "release_resource_rejected",
+      "reserve_resource_rejected"
+    ]
+  },
   "customers-service": {
     "namespace": "customers",
     "commands": [
@@ -9,6 +31,26 @@
     ],
     "rejectedEvents": [
       "create_customer_rejected"
+    ]
+  },
+  "deliveries-service": {
+    "namespace": "deliveries",
+    "commands": [
+      "add_delivery_registration",
+      "complete_delivery",
+      "fail_delivery",
+      "start_delivery"
+    ],
+    "events": [
+      "delivery_completed",
+      "delivery_failed",
+      "delivery_started",
+      "registration_added_to_delivery"
+    ],
+    "rejectedEvents": [
+      "complete_delivery_rejected",
+      "fail_delivery_rejected",
+      "start_delivery_rejected"
     ]
   },
   "identity-service": {
@@ -26,6 +68,39 @@
       "sign_up_rejected"
     ]
   },
+  "orders-service": {
+    "namespace": "orders",
+    "commands": [
+      "add_parcel_to_order",
+      "approve_order",
+      "assign_vehicle_to_order",
+      "cancel_order",
+      "create_order",
+      "delete_order",
+      "delete_parcel_from_order"
+    ],
+    "events": [
+      "order_approved",
+      "order_canceled",
+      "order_completed",
+      "order_created",
+      "order_deleted",
+      "order_delivering",
+      "parcel_added_to_order",
+      "parcel_deleted_from_order",
+      "vehicle_assigned_to_order"
+    ],
+    "rejectedEvents": [
+      "add_parcel_to_order_rejected",
+      "approve_order_rejected",
+      "assign_vehicle_to_order_rejected",
+      "cancel_order_rejected",
+      "create_order_rejected",
+      "delete_order_rejected",
+      "delete_parcel_from_order_rejected",
+      "delivering_order_rejected"
+    ]
+  },
   "parcels-service": {
     "namespace": "parcels",
     "commands": [
@@ -39,6 +114,24 @@
     "rejectedEvents": [
       "add_parcel_rejected",
       "delete_parcel_rejected"
+    ]
+  },
+  "vehicles-service": {
+    "namespace": "vehicles",
+    "commands": [
+      "add_vehicle",
+      "delete_vehicle",
+      "update_vehicle"
+    ],
+    "events": [
+      "vehicle_added",
+      "vehicle_deleted",
+      "vehicle_updated"
+    ],
+    "rejectedEvents": [
+      "add_vehicle_rejected",
+      "delete_vehicle_rejected",
+      "update_vehicle_rejected"
     ]
   }
 }
