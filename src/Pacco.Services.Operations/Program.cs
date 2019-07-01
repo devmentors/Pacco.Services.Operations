@@ -1,17 +1,17 @@
 ﻿using System.Threading.Tasks;
 using Convey;
-using Convey.CQRS.Commands;
-using Convey.CQRS.Events;
-using Convey.CQRS.Queries;
 using Convey.Logging;
 using Convey.MessageBrokers.RabbitMQ;
 using Convey.WebApi;
 using Convey.WebApi.CQRS;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Pacco.Services.Operations.Handlers;
+using Pacco.Services.Operations.Hubs;
+using Pacco.Services.Operations.Queries;
+using Pacco.Services.Operations.Services;
 
 namespace Pacco.Services.Operations
 {
@@ -20,21 +20,28 @@ namespace Pacco.Services.Operations
         public static async Task Main(string[] args)
             => await WebHost.CreateDefaultBuilder(args)
                 .ConfigureServices(services => services
-                    .AddTransient<ICommandHandler<ICommand>, GenericCommandHandler<ICommand>>()
-                    .AddTransient<IEventHandler<IEvent>, GenericEventHandler<IEvent>>()
-                    .AddTransient<IEventHandler<IRejectedEvent>, GenericRejectedEventHandler<IRejectedEvent>>()
                     .AddConvey()
-                    .AddCommandHandlers()
-                    .AddEventHandlers()
-                    .AddQueryHandlers()
-                    .AddRabbitMq()
+                    .AddInfrastructure()
                     .AddWebApi()
                     .Build())
                 .Configure(app => app
                     .UseErrorHandler()
                     .UsePublicContracts()
                     .UseEndpoints(endpoints => endpoints
-                        .Get("", ctx => ctx.Response.WriteAsync("Welcome to Pacco Operations Service!")))
+                        .Get("", ctx => ctx.Response.WriteAsync("Welcome to Pacco Operations Service!"))
+                        .Get<GetOperation>("operations/{id:guid}", async (query, ctx) =>
+                        {
+                            var dto = await ctx.RequestServices.GetService<IOperationsService>().GetAsync(query.Id);
+                            if (dto is null)
+                            {
+                                await ctx.Response.NotFound();
+                                return;
+                            }
+
+                            ctx.Response.WriteJson(dto);
+                        }))
+                    .UseStaticFiles()
+                    .UseSignalR(r => r.MapHub<PaccoHub>("/pacco"))
                     .UseRabbitMq()
                     .SubscribeMessages())
                 .UseLogging()
