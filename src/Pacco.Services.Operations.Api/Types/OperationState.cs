@@ -1,4 +1,4 @@
-namespace Pacco.Services.Operations.Types
+namespace Pacco.Services.Operations.Api.Types
 {
     public enum OperationState
     {

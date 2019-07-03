@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Convey.Auth;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Pacco.Services.Operations.Hubs
+namespace Pacco.Services.Operations.Api.Hubs
 {
     public class PaccoHub : Hub
     {

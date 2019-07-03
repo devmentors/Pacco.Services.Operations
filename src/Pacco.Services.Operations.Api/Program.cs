@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Pacco.Services.Operations.Hubs;
-using Pacco.Services.Operations.Queries;
-using Pacco.Services.Operations.Services;
+using Pacco.Services.Operations.Api.Hubs;
+using Pacco.Services.Operations.Api.Queries;
+using Pacco.Services.Operations.Api.Services;
 
-namespace Pacco.Services.Operations
+namespace Pacco.Services.Operations.Api
 {
     public class Program
     {

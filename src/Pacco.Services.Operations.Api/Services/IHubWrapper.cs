@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Pacco.Services.Operations.Services
+namespace Pacco.Services.Operations.Api.Services
 {
     public interface IHubWrapper
     {

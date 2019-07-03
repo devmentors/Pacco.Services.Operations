@@ -9,11 +9,11 @@ using Convey.CQRS.Commands;
 using Convey.CQRS.Events;
 using Convey.MessageBrokers;
 using Newtonsoft.Json;
-using Pacco.Services.Operations.Types;
 using Microsoft.Extensions.DependencyInjection;
-using RejectedEvent = Pacco.Services.Operations.Types.RejectedEvent;
+using Pacco.Services.Operations.Api.Types;
+using RejectedEvent = Pacco.Services.Operations.Api.Types.RejectedEvent;
 
-namespace Pacco.Services.Operations
+namespace Pacco.Services.Operations.Api
 {
     public static class Subscriptions
     {
@@ -39,8 +39,8 @@ namespace Pacco.Services.Operations
 
             var commands = new List<Command>();
             var events = new List<Event>();
-            var rejectedEvents = new List<RejectedEvent>();
-            var assemblyName = new AssemblyName("Pacco.Services.Operations.Messages");
+            var rejectedEvents = new List<Types.RejectedEvent>();
+            var assemblyName = new AssemblyName("Pacco.Services.Operations.Api.Messages");
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
             foreach (var (_, serviceMessages) in servicesMessages)
@@ -48,7 +48,7 @@ namespace Pacco.Services.Operations
                 var @namespace = serviceMessages.Namespace;
                 commands.AddRange(BindMessages<Command>(moduleBuilder, @namespace, serviceMessages.Commands));
                 events.AddRange(BindMessages<Event>(moduleBuilder, @namespace, serviceMessages.Events));
-                rejectedEvents.AddRange(BindMessages<RejectedEvent>(moduleBuilder, @namespace,
+                rejectedEvents.AddRange(BindMessages<Types.RejectedEvent>(moduleBuilder, @namespace,
                     serviceMessages.RejectedEvents));
             }
 

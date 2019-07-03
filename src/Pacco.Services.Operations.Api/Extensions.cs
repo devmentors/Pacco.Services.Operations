@@ -7,11 +7,11 @@ using Convey.CQRS.Queries;
 using Convey.MessageBrokers.RabbitMQ;
 using Convey.Persistence.Redis;
 using Microsoft.Extensions.DependencyInjection;
-using Pacco.Services.Operations.Handlers;
-using Pacco.Services.Operations.Services;
-using Pacco.Services.Operations.Types;
+using Pacco.Services.Operations.Api.Handlers;
+using Pacco.Services.Operations.Api.Services;
+using Pacco.Services.Operations.Api.Types;
 
-namespace Pacco.Services.Operations
+namespace Pacco.Services.Operations.Api
 {
     public static class Extensions
     {

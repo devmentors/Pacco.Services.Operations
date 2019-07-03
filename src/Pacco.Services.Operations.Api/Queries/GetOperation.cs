@@ -1,8 +1,8 @@
 using System;
 using Convey.CQRS.Queries;
-using Pacco.Services.Operations.DTO;
+using Pacco.Services.Operations.Api.DTO;
 
-namespace Pacco.Services.Operations.Queries
+namespace Pacco.Services.Operations.Api.Queries
 {
     public class GetOperation : IQuery<OperationDto>
     {

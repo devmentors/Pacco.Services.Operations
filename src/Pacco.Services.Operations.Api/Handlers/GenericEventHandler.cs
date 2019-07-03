@@ -2,10 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Convey.CQRS.Events;
 using Convey.MessageBrokers;
-using Pacco.Services.Operations.Services;
-using Pacco.Services.Operations.Types;
+using Pacco.Services.Operations.Api.Services;
+using Pacco.Services.Operations.Api.Types;
 
-namespace Pacco.Services.Operations.Handlers
+namespace Pacco.Services.Operations.Api.Handlers
 {
     public class GenericEventHandler<T> : IEventHandler<T> where T : class, IEvent
     {

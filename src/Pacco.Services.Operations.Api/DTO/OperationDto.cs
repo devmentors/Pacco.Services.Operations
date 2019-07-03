@@ -1,6 +1,6 @@
 using System;
 
-namespace Pacco.Services.Operations.DTO
+namespace Pacco.Services.Operations.Api.DTO
 {
     public class OperationDto
     {

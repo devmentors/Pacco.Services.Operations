@@ -2,10 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
-using Pacco.Services.Operations.DTO;
-using Pacco.Services.Operations.Types;
+using Pacco.Services.Operations.Api.DTO;
+using Pacco.Services.Operations.Api.Types;
 
-namespace Pacco.Services.Operations.Services
+namespace Pacco.Services.Operations.Api.Services
 {
     public class OperationsService : IOperationsService
     {

@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Pacco.Services.Operations.DTO;
+using Pacco.Services.Operations.Api.DTO;
 
-namespace Pacco.Services.Operations.Services
+namespace Pacco.Services.Operations.Api.Services
 {
     public interface IHubService
     {

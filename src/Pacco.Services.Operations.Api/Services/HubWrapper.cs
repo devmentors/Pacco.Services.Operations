@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Pacco.Services.Operations.Hubs;
+using Pacco.Services.Operations.Api.Hubs;
 
-namespace Pacco.Services.Operations.Services
+namespace Pacco.Services.Operations.Api.Services
 {
     public class HubWrapper : IHubWrapper
     {

@@ -1,19 +1,19 @@
 using System;
 using System.Threading.Tasks;
-using Convey.CQRS.Commands;
+using Convey.CQRS.Events;
 using Convey.MessageBrokers;
-using Pacco.Services.Operations.Services;
-using Pacco.Services.Operations.Types;
+using Pacco.Services.Operations.Api.Services;
+using Pacco.Services.Operations.Api.Types;
 
-namespace Pacco.Services.Operations.Handlers
+namespace Pacco.Services.Operations.Api.Handlers
 {
-    public class GenericCommandHandler<T> : ICommandHandler<T> where T : class, ICommand
+    public class GenericRejectedEventHandler<T> : IEventHandler<T> where T : class, IRejectedEvent
     {
         private readonly ICorrelationContextAccessor _contextAccessor;
         private readonly IOperationsService _operationsService;
         private readonly IHubService _hubService;
 
-        public GenericCommandHandler(ICorrelationContextAccessor contextAccessor,
+        public GenericRejectedEventHandler(ICorrelationContextAccessor contextAccessor,
             IOperationsService operationsService, IHubService hubService)
         {
             _contextAccessor = contextAccessor;
@@ -21,7 +21,7 @@ namespace Pacco.Services.Operations.Handlers
             _hubService = hubService;
         }
 
-        public async Task HandleAsync(T command)
+        public async Task HandleAsync(T @event)
         {
             var context = _contextAccessor.CorrelationContext;
             if (context.Id == Guid.Empty)
@@ -30,8 +30,8 @@ namespace Pacco.Services.Operations.Handlers
             }
 
             var operation = await _operationsService.SetAsync(context.Id, context.UserId, context.Name,
-                OperationState.Pending, context.Resource);
-            await _hubService.PublishOperationPendingAsync(operation);
+                OperationState.Rejected, context.Resource);
+            await _hubService.PublishOperationRejectedAsync(operation);
         }
     }
 }
