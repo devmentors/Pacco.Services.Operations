@@ -9,7 +9,7 @@ namespace Pacco.Services.Operations.Api.Services
     {
         Task<OperationDto> GetAsync(Guid id);
 
-        Task<OperationDto> SetAsync(Guid id, Guid userId, string name, OperationState state,
-            string resource, string code = null, string reason = null);
+        Task<(bool updated, OperationDto operation)> TrySetAsync(Guid id, Guid userId, string name,
+            OperationState state, string resource, string code = null, string reason = null);
     }
 }

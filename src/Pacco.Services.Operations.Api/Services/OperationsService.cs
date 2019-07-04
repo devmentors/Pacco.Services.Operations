@@ -16,20 +16,26 @@ namespace Pacco.Services.Operations.Api.Services
             _cache = cache;
         }
 
-        public async Task<OperationDto> SetAsync(Guid id, Guid userId, string name, OperationState state,
+        public async Task<(bool, OperationDto)> TrySetAsync(Guid id, Guid userId, string name, OperationState state,
             string resource, string code = null, string reason = null)
         {
-            var newState = state.ToString().ToLowerInvariant();
             var operation = await GetAsync(id);
-            operation = operation ?? new OperationDto();
+            if (operation is null)
+            {
+                operation = new OperationDto();
+            }
+            else if (operation.State == OperationState.Completed || operation.State == OperationState.Rejected)
+            {
+                return (false, operation);
+            }
+
             operation.Id = id;
             operation.UserId = userId;
             operation.Name = name;
-            operation.State = newState;
+            operation.State = state;
             operation.Resource = resource;
             operation.Code = code ?? string.Empty;
             operation.Reason = reason ?? string.Empty;
-
             await _cache.SetStringAsync(id.ToString("N"),
                 JsonConvert.SerializeObject(operation),
                 new DistributedCacheEntryOptions
@@ -38,7 +44,7 @@ namespace Pacco.Services.Operations.Api.Services
                     SlidingExpiration = TimeSpan.FromMinutes(5)
                 });
 
-            return operation;
+            return (true, operation);
         }
 
         public async Task<OperationDto> GetAsync(Guid id)

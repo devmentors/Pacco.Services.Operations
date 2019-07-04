@@ -29,8 +29,13 @@ namespace Pacco.Services.Operations.Api.Handlers
                 return;
             }
 
-            var operation = await _operationsService.SetAsync(context.Id, context.UserId, context.Name,
+            var (updated, operation) = await _operationsService.TrySetAsync(context.Id, context.UserId, context.Name,
                 OperationState.Completed, context.Resource);
+            if (!updated)
+            {
+                return;
+            }
+
             await _hubService.PublishOperationCompletedAsync(operation);
         }
     }
