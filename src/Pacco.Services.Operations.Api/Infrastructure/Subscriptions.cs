@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Events;
 using Convey.MessageBrokers;
-using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Pacco.Services.Operations.Api.Types;
-using RejectedEvent = Pacco.Services.Operations.Api.Types.RejectedEvent;
 
-namespace Pacco.Services.Operations.Api
+namespace Pacco.Services.Operations.Api.Infrastructure
 {
     public static class Subscriptions
     {

@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Pacco.Services.Operations.Api.Hubs;
+using Pacco.Services.Operations.Api.Infrastructure;
 
 namespace Pacco.Services.Operations.Api.Services
 {

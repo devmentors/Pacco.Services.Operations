@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Pacco.Services.Operations.Api.Hubs;
+using Pacco.Services.Operations.Api.Infrastructure;
 using Pacco.Services.Operations.Api.Queries;
 using Pacco.Services.Operations.Api.Services;
 
@@ -21,12 +22,11 @@ namespace Pacco.Services.Operations.Api
             => await WebHost.CreateDefaultBuilder(args)
                 .ConfigureServices(services => services
                     .AddConvey()
-                    .AddInfrastructure()
                     .AddWebApi()
+                    .AddInfrastructure()
                     .Build())
                 .Configure(app => app
-                    .UseErrorHandler()
-                    .UsePublicContracts()
+                    .UseInfrastructure()
                     .UseEndpoints(endpoints => endpoints
                         .Get("", ctx => ctx.Response.WriteAsync("Welcome to Pacco Operations Service!"))
                         .Get<GetOperation>("operations/{id:guid}", async (query, ctx) =>
@@ -39,11 +39,7 @@ namespace Pacco.Services.Operations.Api
                             }
 
                             ctx.Response.WriteJson(dto);
-                        }))
-                    .UseStaticFiles()
-                    .UseSignalR(r => r.MapHub<PaccoHub>("/pacco"))
-                    .UseRabbitMq()
-                    .SubscribeMessages())
+                        })))
                 .UseLogging()
                 .Build()
                 .RunAsync();

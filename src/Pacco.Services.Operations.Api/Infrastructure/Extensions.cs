@@ -4,14 +4,20 @@ using Convey.Auth;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Events;
 using Convey.CQRS.Queries;
+using Convey.Discovery.Consul;
+using Convey.HTTP;
+using Convey.LoadBalancing.Fabio;
 using Convey.MessageBrokers.RabbitMQ;
 using Convey.Persistence.Redis;
+using Convey.WebApi;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Pacco.Services.Operations.Api.Handlers;
+using Pacco.Services.Operations.Api.Hubs;
 using Pacco.Services.Operations.Api.Services;
 using Pacco.Services.Operations.Api.Types;
 
-namespace Pacco.Services.Operations.Api
+namespace Pacco.Services.Operations.Api.Infrastructure
 {
     public static class Extensions
     {
@@ -32,7 +38,23 @@ namespace Pacco.Services.Operations.Api
                 .AddQueryHandlers()
                 .AddRabbitMq()
                 .AddRedis()
-                .AddSignalR();
+                .AddSignalR()
+                .AddHttpClient()
+                .AddConsul()
+                .AddFabio();
+        }
+
+        public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder app)
+        {
+            app.UseErrorHandler()
+                .UseInitializers()
+                .UseConsul()
+                .UseStaticFiles()
+                .UseSignalR(r => r.MapHub<PaccoHub>("/pacco"))
+                .UseRabbitMq()
+                .SubscribeMessages();
+
+            return app;
         }
 
         private static IConveyBuilder AddSignalR(this IConveyBuilder builder)
