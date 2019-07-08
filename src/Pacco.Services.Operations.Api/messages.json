@@ -24,13 +24,14 @@
   "customers-service": {
     "namespace": "customers",
     "commands": [
-      "create_customer"
+      "complete_customer_registration"
     ],
     "events": [
-      "customer_created"
+      "customer_created",
+      "customer_became_vip"
     ],
     "rejectedEvents": [
-      "create_customer_rejected"
+      "complete_customer_registration_rejected"
     ]
   },
   "deliveries-service": {
@@ -98,7 +99,9 @@
       "create_order_rejected",
       "delete_order_rejected",
       "delete_parcel_from_order_rejected",
-      "delivering_order_rejected"
+      "delivering_order_rejected",
+      "order_for_delivery_not_found",
+      "order_for_reserved_vehicle_not_found"
     ]
   },
   "parcels-service": {
