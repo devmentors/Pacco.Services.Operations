@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using Pacco.Services.Operations.Api.DTO;
+using Pacco.Services.Operations.Api.Infrastructure;
 using Pacco.Services.Operations.Api.Types;
 
 namespace Pacco.Services.Operations.Api.Services
@@ -10,10 +11,19 @@ namespace Pacco.Services.Operations.Api.Services
     public class OperationsService : IOperationsService
     {
         private readonly IDistributedCache _cache;
+        private readonly RequestsOptions _options;
 
-        public OperationsService(IDistributedCache cache)
+        public OperationsService(IDistributedCache cache, RequestsOptions options)
         {
             _cache = cache;
+            _options = options;
+        }
+
+        public async Task<OperationDto> GetAsync(Guid id)
+        {
+            var operation = await _cache.GetStringAsync(GetKey(id));
+
+            return string.IsNullOrWhiteSpace(operation) ? null : JsonConvert.DeserializeObject<OperationDto>(operation);
         }
 
         public async Task<(bool, OperationDto)> TrySetAsync(Guid id, Guid userId, string name, OperationState state,
@@ -36,22 +46,16 @@ namespace Pacco.Services.Operations.Api.Services
             operation.Resource = resource;
             operation.Code = code ?? string.Empty;
             operation.Reason = reason ?? string.Empty;
-            await _cache.SetStringAsync(id.ToString("N"),
+            await _cache.SetStringAsync(GetKey(id),
                 JsonConvert.SerializeObject(operation),
                 new DistributedCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
-                    SlidingExpiration = TimeSpan.FromMinutes(5)
+                    SlidingExpiration = TimeSpan.FromSeconds(_options.ExpirySeconds)
                 });
 
             return (true, operation);
         }
 
-        public async Task<OperationDto> GetAsync(Guid id)
-        {
-            var operation = await _cache.GetStringAsync(id.ToString("N"));
-
-            return string.IsNullOrWhiteSpace(operation) ? null : JsonConvert.DeserializeObject<OperationDto>(operation);
-        }
+        private static string GetKey(Guid id) => $"requests:{id:N}";
     }
 }

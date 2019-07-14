@@ -29,6 +29,8 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         public static IConveyBuilder AddInfrastructure(this IConveyBuilder builder)
         {
+            var options = builder.GetOptions<RequestsOptions>("requests");
+            builder.Services.AddSingleton(options);
             builder.Services.AddTransient<ICommandHandler<ICommand>, GenericCommandHandler<ICommand>>()
                 .AddTransient<IEventHandler<IEvent>, GenericEventHandler<IEvent>>()
                 .AddTransient<IEventHandler<IRejectedEvent>, GenericRejectedEventHandler<IRejectedEvent>>()
