@@ -58,6 +58,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
         {
             app.UseErrorHandler()
                 .UseVault()
+                .UseJaeger()
                 .UseInitializers()
                 .UseConsul()
                 .UseMetrics()

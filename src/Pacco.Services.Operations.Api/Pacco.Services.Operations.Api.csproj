@@ -26,6 +26,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Redis" Version="1.1.5" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.6.0" />
   </ItemGroup>
 
   <ItemGroup>
