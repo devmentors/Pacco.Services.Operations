@@ -1,15 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Convey;
+using Convey.Configurations.Vault;
 using Convey.Logging;
-using Convey.MessageBrokers.RabbitMQ;
+using Convey.Types;
 using Convey.WebApi;
-using Convey.WebApi.CQRS;
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Pacco.Services.Operations.Api.Hubs;
 using Pacco.Services.Operations.Api.Infrastructure;
 using Pacco.Services.Operations.Api.Queries;
 using Pacco.Services.Operations.Api.Services;
@@ -29,7 +27,7 @@ namespace Pacco.Services.Operations.Api
                 .Configure(app => app
                     .UseInfrastructure()
                     .UseEndpoints(endpoints => endpoints
-                        .Get("", ctx => ctx.Response.WriteAsync("Welcome to Pacco Operations Service!"))
+                        .Get("", ctx => ctx.Response.WriteAsync(ctx.RequestServices.GetService<AppOptions>().Name))
                         .Get<GetOperation>("operations/{id:guid}", async (query, ctx) =>
                         {
                             var dto = await ctx.RequestServices.GetService<IOperationsService>().GetAsync(query.Id);
@@ -42,6 +40,7 @@ namespace Pacco.Services.Operations.Api
                             ctx.Response.WriteJson(dto);
                         })))
                 .UseLogging()
+                .UseVault()
                 .Build()
                 .RunAsync();
     }

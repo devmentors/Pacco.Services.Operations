@@ -1,7 +1,6 @@
 using System;
 using Convey;
 using Convey.Auth;
-using Convey.Configurations.Vault;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Events;
 using Convey.CQRS.Queries;
@@ -15,7 +14,6 @@ using Convey.Persistence.Redis;
 using Convey.Tracing.Jaeger;
 using Convey.Tracing.Jaeger.RabbitMQ;
 using Convey.WebApi;
-using Convey.WebApi.CQRS;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Pacco.Services.Operations.Api.Handlers;
@@ -49,7 +47,6 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddMongo()
                 .AddMetrics()
                 .AddJaeger()
-                .AddVault()
                 .AddRedis()
                 .AddSignalR();
         }
@@ -57,7 +54,6 @@ namespace Pacco.Services.Operations.Api.Infrastructure
         public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder app)
         {
             app.UseErrorHandler()
-                .UseVault()
                 .UseJaeger()
                 .UseInitializers()
                 .UseConsul()
