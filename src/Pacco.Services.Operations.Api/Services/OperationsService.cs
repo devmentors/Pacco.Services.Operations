@@ -19,6 +19,8 @@ namespace Pacco.Services.Operations.Api.Services
             _options = options;
         }
 
+        public event EventHandler<OperationUpdatedEventArgs> OperationUpdated;
+
         public async Task<OperationDto> GetAsync(Guid id)
         {
             var operation = await _cache.GetStringAsync(GetKey(id));
@@ -52,6 +54,8 @@ namespace Pacco.Services.Operations.Api.Services
                 {
                     SlidingExpiration = TimeSpan.FromSeconds(_options.ExpirySeconds)
                 });
+
+            OperationUpdated?.Invoke(this, new OperationUpdatedEventArgs(operation));
 
             return (true, operation);
         }

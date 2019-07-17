@@ -36,7 +36,8 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddTransient<IEventHandler<IRejectedEvent>, GenericRejectedEventHandler<IRejectedEvent>>()
                 .AddTransient<IHubService, HubService>()
                 .AddTransient<IHubWrapper, HubWrapper>()
-                .AddTransient<IOperationsService, OperationsService>();
+                .AddSingleton<IOperationsService, OperationsService>()
+                .AddHostedService<GrpcServer>();
 
             return builder.AddJwt()
                 .AddCommandHandlers()

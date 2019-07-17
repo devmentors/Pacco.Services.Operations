@@ -7,6 +7,7 @@ namespace Pacco.Services.Operations.Api.Services
 {
     public interface IOperationsService
     {
+        event EventHandler<OperationUpdatedEventArgs> OperationUpdated;
         Task<OperationDto> GetAsync(Guid id);
 
         Task<(bool updated, OperationDto operation)> TrySetAsync(Guid id, Guid userId, string name,
