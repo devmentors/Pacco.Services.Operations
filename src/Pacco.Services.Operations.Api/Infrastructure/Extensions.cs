@@ -25,7 +25,8 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 {
     public static class Extensions
     {
-        public static string ToUserGroup(this Guid userId) => $"users:{userId}";
+        public static string ToUserGroup(this Guid userId) => userId.ToString("N").ToUserGroup();
+        public static string ToUserGroup(this string userId) => $"users:{userId}";
 
         public static IConveyBuilder AddInfrastructure(this IConveyBuilder builder)
         {
@@ -45,7 +46,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddHttpClient()
                 .AddConsul()
                 .AddFabio()
-                .AddRabbitMq(plugins: p => p.RegisterJaeger())
+                .AddRabbitMq<CorrelationContext>(plugins: p => p.RegisterJaeger())
                 .AddMongo()
                 .AddMetrics()
                 .AddJaeger()

@@ -28,9 +28,9 @@ namespace Pacco.Services.Operations.Api
                     .UseInfrastructure()
                     .UseEndpoints(endpoints => endpoints
                         .Get("", ctx => ctx.Response.WriteAsync(ctx.RequestServices.GetService<AppOptions>().Name))
-                        .Get<GetOperation>("operations/{id:guid}", async (query, ctx) =>
+                        .Get<GetOperation>("operations/{operationId}", async (query, ctx) =>
                         {
-                            var dto = await ctx.RequestServices.GetService<IOperationsService>().GetAsync(query.Id);
+                            var dto = await ctx.RequestServices.GetService<IOperationsService>().GetAsync(query.OperationId);
                             if (dto is null)
                             {
                                 await ctx.Response.NotFound();

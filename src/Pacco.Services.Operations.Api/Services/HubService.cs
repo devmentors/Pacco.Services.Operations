@@ -18,8 +18,7 @@ namespace Pacco.Services.Operations.Api.Services
                 new
                 {
                     id = operation.Id,
-                    name = operation.Name,
-                    resource = operation.Resource
+                    name = operation.Name
                 }
             );
 
@@ -29,8 +28,7 @@ namespace Pacco.Services.Operations.Api.Services
                 new
                 {
                     id = operation.Id,
-                    name = operation.Name,
-                    resource = operation.Resource
+                    name = operation.Name
                 }
             );
 
@@ -41,9 +39,8 @@ namespace Pacco.Services.Operations.Api.Services
                 {
                     id = operation.Id,
                     name = operation.Name,
-                    resource = operation.Resource,
                     code = operation.Code,
-                    reason = operation.Resource
+                    reason = operation.Reason
                 }
             );
     }

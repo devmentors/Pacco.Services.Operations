@@ -1,7 +1,7 @@
-using System;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.MessageBrokers;
+using Pacco.Services.Operations.Api.Infrastructure;
 using Pacco.Services.Operations.Api.Services;
 using Pacco.Services.Operations.Api.Types;
 
@@ -23,14 +23,14 @@ namespace Pacco.Services.Operations.Api.Handlers
 
         public async Task HandleAsync(T command)
         {
-            var context = _contextAccessor.CorrelationContext;
-            if (context.Id == Guid.Empty)
+            var context = _contextAccessor.CorrelationContext as CorrelationContext;
+            if (context is null || string.IsNullOrEmpty(context.CorrelationId))
             {
                 return;
             }
 
-            var (updated, operation) = await _operationsService.TrySetAsync(context.Id, context.UserId, context.Name,
-                OperationState.Pending, context.Resource);
+            var (updated, operation) = await _operationsService.TrySetAsync(context.CorrelationId, context.User.Id,
+                context.Name, OperationState.Pending);
             if (!updated)
             {
                 return;

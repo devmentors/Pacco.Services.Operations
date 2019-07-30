@@ -19,15 +19,15 @@ namespace Pacco.Services.Operations.Api.Services
             _options = options;
         }
 
-        public async Task<OperationDto> GetAsync(Guid id)
+        public async Task<OperationDto> GetAsync(string id)
         {
             var operation = await _cache.GetStringAsync(GetKey(id));
 
             return string.IsNullOrWhiteSpace(operation) ? null : JsonConvert.DeserializeObject<OperationDto>(operation);
         }
 
-        public async Task<(bool, OperationDto)> TrySetAsync(Guid id, Guid userId, string name, OperationState state,
-            string resource, string code = null, string reason = null)
+        public async Task<(bool, OperationDto)> TrySetAsync(string id, string userId, string name, OperationState state,
+            string code = null, string reason = null)
         {
             var operation = await GetAsync(id);
             if (operation is null)
@@ -43,7 +43,6 @@ namespace Pacco.Services.Operations.Api.Services
             operation.UserId = userId;
             operation.Name = name;
             operation.State = state;
-            operation.Resource = resource;
             operation.Code = code ?? string.Empty;
             operation.Reason = reason ?? string.Empty;
             await _cache.SetStringAsync(GetKey(id),
@@ -56,6 +55,6 @@ namespace Pacco.Services.Operations.Api.Services
             return (true, operation);
         }
 
-        private static string GetKey(Guid id) => $"requests:{id:N}";
+        private static string GetKey(string id) => $"requests:{id}";
     }
 }
