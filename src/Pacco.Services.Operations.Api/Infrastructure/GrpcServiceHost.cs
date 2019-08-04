@@ -27,9 +27,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
         {
             _logger.LogInformation($"Received 'Get operation' (id: {request.Id}) request from: {context.Peer}");
 
-            return Guid.TryParse(request.Id, out var id)
-                ? Map(await _operationsService.GetAsync(id))
-                : new GetOperationResponse();
+            return Map(await _operationsService.GetAsync(request.Id));
         }
 
         public override async Task SubscribeOperations(Empty request,
@@ -48,8 +46,8 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 ? new GetOperationResponse()
                 : new GetOperationResponse
                 {
-                    Id = operation.Id.ToString("N"),
-                    UserId = operation.UserId.ToString("N"),
+                    Id = operation.Id,
+                    UserId = operation.UserId,
                     Name = operation.Name,
                     Code = operation.Code,
                     Reason = operation.Reason,

@@ -1,4 +1,3 @@
-using System;
 using Convey.CQRS.Queries;
 using Pacco.Services.Operations.Api.DTO;
 
@@ -6,6 +5,6 @@ namespace Pacco.Services.Operations.Api.Queries
 {
     public class GetOperation : IQuery<OperationDto>
     {
-        public Guid Id { get; set; }
+        public string OperationId { get; set; }
     }
 }

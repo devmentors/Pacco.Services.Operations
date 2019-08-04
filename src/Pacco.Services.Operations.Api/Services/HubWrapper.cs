@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Pacco.Services.Operations.Api.Hubs;
@@ -15,7 +14,7 @@ namespace Pacco.Services.Operations.Api.Services
             _hubContext = hubContext;
         }
 
-        public async Task PublishToUserAsync(Guid userId, string message, object data)
+        public async Task PublishToUserAsync(string userId, string message, object data)
             => await _hubContext.Clients.Group(userId.ToUserGroup()).SendAsync(message, data);
 
         public async Task PublishToAllAsync(string message, object data)
