@@ -24,13 +24,16 @@
   "customers-service": {
     "namespace": "customers",
     "commands": [
+      "change_customer_state",
       "complete_customer_registration"
     ],
     "events": [
       "customer_created",
-      "customer_became_vip"
+      "customer_became_vip",
+      "customer_state_changed"
     ],
     "rejectedEvents": [
+      "change_customer_state_rejected",
       "complete_customer_registration_rejected"
     ]
   },
