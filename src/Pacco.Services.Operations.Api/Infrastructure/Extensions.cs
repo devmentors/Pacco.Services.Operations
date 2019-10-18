@@ -46,7 +46,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddHttpClient()
                 .AddConsul()
                 .AddFabio()
-                .AddRabbitMq<CorrelationContext>(plugins: p => p.RegisterJaeger())
+                .AddRabbitMq(plugins: p => p.AddJaegerRabbitMqPlugin())
                 .AddMongo()
                 .AddMetrics()
                 .AddJaeger()
@@ -62,7 +62,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .UseConsul()
                 .UseMetrics()
                 .UseStaticFiles()
-                .UseSignalR(r => r.MapHub<PaccoHub>("/pacco"))
+                .UseEndpoints(r => r.MapHub<PaccoHub>("/pacco"))
                 .UseRabbitMq()
                 .SubscribeMessages();
 
