@@ -58,17 +58,17 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             return subscriber;
         }
 
-        private static IEnumerable<T> BindMessages<T>(ModuleBuilder moduleBuilder, string @namespace,
+        private static IEnumerable<T> BindMessages<T>(ModuleBuilder moduleBuilder, string exchange,
             IEnumerable<string> messages) where T : class, IMessage, new()
         {
             foreach (var message in messages)
             {
                 var type = typeof(T);
                 var typeBuilder = moduleBuilder.DefineType(message, TypeAttributes.Public, type);
-                var attributeConstructorParams = new[] {typeof(string), typeof(string), typeof(bool)};
+                var attributeConstructorParams = new[] {typeof(string), typeof(string), typeof(string), typeof(bool)};
                 var constructorInfo = typeof(MessageAttribute).GetConstructor(attributeConstructorParams);
                 var customAttributeBuilder = new CustomAttributeBuilder(constructorInfo,
-                    new object[] {@namespace, message, true});
+                    new object[] {exchange, null, null, true});
                 typeBuilder.SetCustomAttribute(customAttributeBuilder);
                 var newType = typeBuilder.CreateType();
                 var instance = Activator.CreateInstance(newType);

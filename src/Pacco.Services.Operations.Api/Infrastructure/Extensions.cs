@@ -15,6 +15,7 @@ using Convey.Tracing.Jaeger;
 using Convey.Tracing.Jaeger.RabbitMQ;
 using Convey.WebApi;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Pacco.Services.Operations.Api.Handlers;
 using Pacco.Services.Operations.Api.Hubs;
@@ -30,8 +31,9 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         public static IConveyBuilder AddInfrastructure(this IConveyBuilder builder)
         {
-            var options = builder.GetOptions<RequestsOptions>("requests");
-            builder.Services.AddSingleton(options);
+            builder.Services.Configure<KestrelServerOptions>(options => { options.AllowSynchronousIO = true; });
+            var requestsOptions = builder.GetOptions<RequestsOptions>("requests");
+            builder.Services.AddSingleton(requestsOptions);
             builder.Services.AddTransient<ICommandHandler<ICommand>, GenericCommandHandler<ICommand>>()
                 .AddTransient<IEventHandler<IEvent>, GenericEventHandler<IEvent>>()
                 .AddTransient<IEventHandler<IRejectedEvent>, GenericRejectedEventHandler<IRejectedEvent>>()
@@ -62,6 +64,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .UseConsul()
                 .UseMetrics()
                 .UseStaticFiles()
+                .UseRouting()
                 .UseEndpoints(r => r.MapHub<PaccoHub>("/pacco"))
                 .UseRabbitMq()
                 .SubscribeMessages();
