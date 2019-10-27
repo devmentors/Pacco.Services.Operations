@@ -31,7 +31,6 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         public static IConveyBuilder AddInfrastructure(this IConveyBuilder builder)
         {
-            builder.Services.Configure<KestrelServerOptions>(options => { options.AllowSynchronousIO = true; });
             var requestsOptions = builder.GetOptions<RequestsOptions>("requests");
             builder.Services.AddSingleton(requestsOptions);
             builder.Services.AddTransient<ICommandHandler<ICommand>, GenericCommandHandler<ICommand>>()
@@ -50,6 +49,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddFabio()
                 .AddRabbitMq(plugins: p => p.AddJaegerRabbitMqPlugin())
                 .AddMongo()
+                .AddRedis()
                 .AddMetrics()
                 .AddJaeger()
                 .AddRedis()
@@ -61,7 +61,6 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             app.UseErrorHandler()
                 .UseJaeger()
                 .UseInitializers()
-                .UseConsul()
                 .UseMetrics()
                 .UseStaticFiles()
                 .UseRouting()

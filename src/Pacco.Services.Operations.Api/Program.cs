@@ -37,7 +37,7 @@ namespace Pacco.Services.Operations.Api
                                 return;
                             }
 
-                            ctx.Response.WriteJson(dto);
+                            await ctx.Response.WriteJsonAsync(dto);
                         })))
                 .UseLogging()
                 .UseVault()
