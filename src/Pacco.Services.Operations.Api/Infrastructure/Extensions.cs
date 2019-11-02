@@ -7,6 +7,7 @@ using Convey.CQRS.Queries;
 using Convey.Discovery.Consul;
 using Convey.HTTP;
 using Convey.LoadBalancing.Fabio;
+using Convey.MessageBrokers;
 using Convey.MessageBrokers.RabbitMQ;
 using Convey.Metrics.AppMetrics;
 using Convey.Persistence.MongoDB;
@@ -17,6 +18,7 @@ using Convey.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Pacco.Services.Operations.Api.Handlers;
 using Pacco.Services.Operations.Api.Hubs;
 using Pacco.Services.Operations.Api.Services;
@@ -28,6 +30,20 @@ namespace Pacco.Services.Operations.Api.Infrastructure
     {
         public static string ToUserGroup(this Guid userId) => userId.ToString("N").ToUserGroup();
         public static string ToUserGroup(this string userId) => $"users:{userId}";
+
+        public static CorrelationContext GetCorrelationContext(this ICorrelationContextAccessor accessor)
+        {
+            if (accessor.CorrelationContext is null)
+            {
+                return null;
+            }
+
+            var payload = JsonConvert.SerializeObject(accessor.CorrelationContext);
+
+            return string.IsNullOrWhiteSpace(payload)
+                ? null
+                : JsonConvert.DeserializeObject<CorrelationContext>(payload);
+        }
 
         public static IConveyBuilder AddInfrastructure(this IConveyBuilder builder)
         {
