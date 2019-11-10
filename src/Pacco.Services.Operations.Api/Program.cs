@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Pacco.Services.Operations.Api.Hubs;
 using Pacco.Services.Operations.Api.Infrastructure;
 using Pacco.Services.Operations.Api.Queries;
 using Pacco.Services.Operations.Api.Services;
@@ -41,7 +42,11 @@ namespace Pacco.Services.Operations.Api
 
                             await ctx.Response.WriteJsonAsync(operation);
                         }))
-                    .UseEndpoints(e => e.MapGrpcService<GrpcServiceHost>()))
+                    .UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapHub<PaccoHub>("/pacco");
+                        endpoints.MapGrpcService<GrpcServiceHost>();
+                    }))
                 .UseLogging()
                 .UseVault()
                 .Build()

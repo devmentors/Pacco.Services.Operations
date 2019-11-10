@@ -79,8 +79,6 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .UseInitializers()
                 .UseMetrics()
                 .UseStaticFiles()
-                .UseRouting()
-                .UseEndpoints(r => r.MapHub<PaccoHub>("/pacco"))
                 .UseRabbitMq()
                 .SubscribeMessages();
 
