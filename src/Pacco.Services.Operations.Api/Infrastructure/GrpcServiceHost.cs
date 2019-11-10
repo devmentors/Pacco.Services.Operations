@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Grpc.Core;
@@ -12,10 +11,10 @@ namespace Pacco.Services.Operations.Api.Infrastructure
     public class GrpcServiceHost : GrpcOperationsService.GrpcOperationsServiceBase
     {
         private readonly IOperationsService _operationsService;
-        private readonly ILogger<GrpcServer> _logger;
+        private readonly ILogger<GrpcServiceHost> _logger;
         private readonly BlockingCollection<OperationDto> _operations = new BlockingCollection<OperationDto>();
 
-        public GrpcServiceHost(IOperationsService operationsService, ILogger<GrpcServer> logger)
+        public GrpcServiceHost(IOperationsService operationsService, ILogger<GrpcServiceHost> logger)
         {
             _operationsService = operationsService;
             _logger = logger;

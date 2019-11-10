@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Convey.MessageBrokers;
 
 namespace Pacco.Services.Operations.Api.Infrastructure
 {
-    public class CorrelationContext : ICorrelationContext
+    public class CorrelationContext
     {
         public string CorrelationId { get; set; }
         public string SpanContext { get; set; }

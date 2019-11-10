@@ -7,6 +7,7 @@ using Convey.CQRS.Queries;
 using Convey.Discovery.Consul;
 using Convey.HTTP;
 using Convey.LoadBalancing.Fabio;
+using Convey.MessageBrokers;
 using Convey.MessageBrokers.RabbitMQ;
 using Convey.Metrics.AppMetrics;
 using Convey.Persistence.MongoDB;
@@ -16,6 +17,7 @@ using Convey.Tracing.Jaeger.RabbitMQ;
 using Convey.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Pacco.Services.Operations.Api.Handlers;
 using Pacco.Services.Operations.Api.Hubs;
 using Pacco.Services.Operations.Api.Services;
@@ -28,17 +30,31 @@ namespace Pacco.Services.Operations.Api.Infrastructure
         public static string ToUserGroup(this Guid userId) => userId.ToString("N").ToUserGroup();
         public static string ToUserGroup(this string userId) => $"users:{userId}";
 
+        public static CorrelationContext GetCorrelationContext(this ICorrelationContextAccessor accessor)
+        {
+            if (accessor.CorrelationContext is null)
+            {
+                return null;
+            }
+
+            var payload = JsonConvert.SerializeObject(accessor.CorrelationContext);
+
+            return string.IsNullOrWhiteSpace(payload)
+                ? null
+                : JsonConvert.DeserializeObject<CorrelationContext>(payload);
+        }
+
         public static IConveyBuilder AddInfrastructure(this IConveyBuilder builder)
         {
-            var options = builder.GetOptions<RequestsOptions>("requests");
-            builder.Services.AddSingleton(options);
+            var requestsOptions = builder.GetOptions<RequestsOptions>("requests");
+            builder.Services.AddSingleton(requestsOptions);
             builder.Services.AddTransient<ICommandHandler<ICommand>, GenericCommandHandler<ICommand>>()
                 .AddTransient<IEventHandler<IEvent>, GenericEventHandler<IEvent>>()
                 .AddTransient<IEventHandler<IRejectedEvent>, GenericRejectedEventHandler<IRejectedEvent>>()
                 .AddTransient<IHubService, HubService>()
                 .AddTransient<IHubWrapper, HubWrapper>()
-                .AddSingleton<IOperationsService, OperationsService>()
-                .AddHostedService<GrpcServer>();
+                .AddSingleton<IOperationsService, OperationsService>();
+            builder.Services.AddGrpc();
 
             return builder.AddJwt()
                 .AddCommandHandlers()
@@ -47,8 +63,9 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddHttpClient()
                 .AddConsul()
                 .AddFabio()
-                .AddRabbitMq<CorrelationContext>(plugins: p => p.RegisterJaeger())
+                .AddRabbitMq(plugins: p => p.AddJaegerRabbitMqPlugin())
                 .AddMongo()
+                .AddRedis()
                 .AddMetrics()
                 .AddJaeger()
                 .AddRedis()
@@ -60,10 +77,10 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             app.UseErrorHandler()
                 .UseJaeger()
                 .UseInitializers()
-                .UseConsul()
                 .UseMetrics()
                 .UseStaticFiles()
-                .UseSignalR(r => r.MapHub<PaccoHub>("/pacco"))
+                .UseRouting()
+                .UseEndpoints(r => r.MapHub<PaccoHub>("/pacco"))
                 .UseRabbitMq()
                 .SubscribeMessages();
 

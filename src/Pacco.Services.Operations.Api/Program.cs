@@ -5,6 +5,7 @@ using Convey.Logging;
 using Convey.Types;
 using Convey.WebApi;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,27 +19,29 @@ namespace Pacco.Services.Operations.Api
     {
         public static async Task Main(string[] args)
             => await WebHost.CreateDefaultBuilder(args)
-                .ConfigureServices(services => services
-                    .AddOpenTracing()
-                    .AddConvey()
-                    .AddWebApi()
-                    .AddInfrastructure()
-                    .Build())
+                .ConfigureServices(services =>
+                    services.AddOpenTracing()
+                        .AddConvey()
+                        .AddWebApi()
+                        .AddInfrastructure()
+                        .Build())
                 .Configure(app => app
                     .UseInfrastructure()
                     .UseEndpoints(endpoints => endpoints
                         .Get("", ctx => ctx.Response.WriteAsync(ctx.RequestServices.GetService<AppOptions>().Name))
                         .Get<GetOperation>("operations/{operationId}", async (query, ctx) =>
                         {
-                            var dto = await ctx.RequestServices.GetService<IOperationsService>().GetAsync(query.OperationId);
-                            if (dto is null)
+                            var operation = await ctx.RequestServices.GetService<IOperationsService>()
+                                .GetAsync(query.OperationId);
+                            if (operation is null)
                             {
                                 await ctx.Response.NotFound();
                                 return;
                             }
 
-                            ctx.Response.WriteJson(dto);
-                        })))
+                            await ctx.Response.WriteJsonAsync(operation);
+                        }))
+                    .UseEndpoints(e => e.MapGrpcService<GrpcServiceHost>()))
                 .UseLogging()
                 .UseVault()
                 .Build()

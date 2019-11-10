@@ -44,7 +44,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
             foreach (var (_, serviceMessages) in servicesMessages)
             {
-                var @namespace = serviceMessages.Namespace;
+                var @namespace = serviceMessages.Exchange;
                 commands.AddRange(BindMessages<Command>(moduleBuilder, @namespace, serviceMessages.Commands));
                 events.AddRange(BindMessages<Event>(moduleBuilder, @namespace, serviceMessages.Events));
                 rejectedEvents.AddRange(BindMessages<Types.RejectedEvent>(moduleBuilder, @namespace,
@@ -58,17 +58,17 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             return subscriber;
         }
 
-        private static IEnumerable<T> BindMessages<T>(ModuleBuilder moduleBuilder, string @namespace,
+        private static IEnumerable<T> BindMessages<T>(ModuleBuilder moduleBuilder, string exchange,
             IEnumerable<string> messages) where T : class, IMessage, new()
         {
             foreach (var message in messages)
             {
                 var type = typeof(T);
                 var typeBuilder = moduleBuilder.DefineType(message, TypeAttributes.Public, type);
-                var attributeConstructorParams = new[] {typeof(string), typeof(string), typeof(bool)};
-                var constructorInfo = typeof(MessageNamespaceAttribute).GetConstructor(attributeConstructorParams);
+                var attributeConstructorParams = new[] {typeof(string), typeof(string), typeof(string), typeof(bool)};
+                var constructorInfo = typeof(MessageAttribute).GetConstructor(attributeConstructorParams);
                 var customAttributeBuilder = new CustomAttributeBuilder(constructorInfo,
-                    new object[] {@namespace, message, true});
+                    new object[] {exchange, null, null, true});
                 typeBuilder.SetCustomAttribute(customAttributeBuilder);
                 var newType = typeBuilder.CreateType();
                 var instance = Activator.CreateInstance(newType);
@@ -84,11 +84,11 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             {
                 var subscribeMethod = subscriber.GetType().GetMethod(methodName);
                 
-                Task Handle(IServiceProvider sp, ICommand command, ICorrelationContext ctx) =>
+                Task Handle(IServiceProvider sp, ICommand command, object ctx) =>
                     sp.GetService<ICommandHandler<ICommand>>().HandleAsync(command);
 
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
-                    new object[] {(Func<IServiceProvider, ICommand, ICorrelationContext, Task>) Handle});
+                    new object[] {(Func<IServiceProvider, ICommand, object, Task>) Handle});
             }
         }
 
@@ -99,11 +99,11 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             {
                 var subscribeMethod = subscriber.GetType().GetMethod(methodName);
 
-                Task Handle(IServiceProvider sp, IEvent @event, ICorrelationContext ctx) =>
+                Task Handle(IServiceProvider sp, IEvent @event, object ctx) =>
                     sp.GetService<IEventHandler<IEvent>>().HandleAsync(@event);
 
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
-                    new object[] {(Func<IServiceProvider, IEvent, ICorrelationContext, Task>) Handle});
+                    new object[] {(Func<IServiceProvider, IEvent, object, Task>) Handle});
             }
         }
 
@@ -114,17 +114,17 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             {
                 var subscribeMethod = subscriber.GetType().GetMethod(methodName);
 
-                Task Handle(IServiceProvider sp, IRejectedEvent @event, ICorrelationContext ctx) =>
+                Task Handle(IServiceProvider sp, IRejectedEvent @event, object ctx) =>
                     sp.GetService<IEventHandler<IRejectedEvent>>().HandleAsync(@event);
 
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
-                    new object[] {(Func<IServiceProvider, IRejectedEvent, ICorrelationContext, Task>) Handle});
+                    new object[] {(Func<IServiceProvider, IRejectedEvent, object, Task>) Handle});
             }
         }
 
         private class ServiceMessages
         {
-            public string Namespace { get; set; }
+            public string Exchange { get; set; }
             public IEnumerable<string> Commands { get; set; }
             public IEnumerable<string> Events { get; set; }
             public IEnumerable<string> RejectedEvents { get; set; }

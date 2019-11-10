@@ -42,7 +42,7 @@ namespace Pacco.Services.Operations.Api.Services
             }
 
             operation.Id = id;
-            operation.UserId = userId;
+            operation.UserId = userId ?? string.Empty;
             operation.Name = name;
             operation.State = state;
             operation.Code = code ?? string.Empty;

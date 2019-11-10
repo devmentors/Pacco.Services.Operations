@@ -1,6 +1,6 @@
 {
   "availability-service": {
-    "namespace": "availability",
+    "exchange": "availability",
     "commands": [
       "add_resource",
       "delete_resource",
@@ -22,7 +22,7 @@
     ]
   },
   "customers-service": {
-    "namespace": "customers",
+    "exchange": "customers",
     "commands": [
       "change_customer_state",
       "complete_customer_registration"
@@ -38,7 +38,7 @@
     ]
   },
   "deliveries-service": {
-    "namespace": "deliveries",
+    "exchange": "deliveries",
     "commands": [
       "add_delivery_registration",
       "complete_delivery",
@@ -58,7 +58,7 @@
     ]
   },
   "identity-service": {
-    "namespace": "identity",
+    "exchange": "identity",
     "commands": [
       "sign_in",
       "sign_up"
@@ -73,7 +73,7 @@
     ]
   },
   "orders-service": {
-    "namespace": "orders",
+    "exchange": "orders",
     "commands": [
       "add_parcel_to_order",
       "approve_order",
@@ -108,7 +108,7 @@
     ]
   },
   "parcels-service": {
-    "namespace": "parcels",
+    "exchange": "parcels",
     "commands": [
       "add_parcel",
       "delete_parcel"
@@ -123,7 +123,7 @@
     ]
   },
   "vehicles-service": {
-    "namespace": "vehicles",
+    "exchange": "vehicles",
     "commands": [
       "add_vehicle",
       "delete_vehicle",
