@@ -44,10 +44,10 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
             foreach (var (_, serviceMessages) in servicesMessages)
             {
-                var @namespace = serviceMessages.Exchange;
-                commands.AddRange(BindMessages<Command>(moduleBuilder, @namespace, serviceMessages.Commands));
-                events.AddRange(BindMessages<Event>(moduleBuilder, @namespace, serviceMessages.Events));
-                rejectedEvents.AddRange(BindMessages<Types.RejectedEvent>(moduleBuilder, @namespace,
+                var exchange = serviceMessages.Exchange;
+                commands.AddRange(BindMessages<Command>(moduleBuilder, exchange, serviceMessages.Commands));
+                events.AddRange(BindMessages<Event>(moduleBuilder, exchange, serviceMessages.Events));
+                rejectedEvents.AddRange(BindMessages<Types.RejectedEvent>(moduleBuilder, exchange,
                     serviceMessages.RejectedEvents));
             }
 
@@ -79,11 +79,14 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         private static void SubscribeCommands(IBusSubscriber subscriber, IEnumerable<ICommand> messages)
         {
-            const string methodName = nameof(IBusSubscriber.Subscribe);
+            var subscribeMethod = subscriber.GetType().GetMethod(nameof(IBusSubscriber.Subscribe));
+            if (subscribeMethod is null)
+            {
+                return;
+            }
+
             foreach (var message in messages)
             {
-                var subscribeMethod = subscriber.GetType().GetMethod(methodName);
-                
                 Task Handle(IServiceProvider sp, ICommand command, object ctx) =>
                     sp.GetService<ICommandHandler<ICommand>>().HandleAsync(command);
 
@@ -94,10 +97,14 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         private static void SubscribeEvents(IBusSubscriber subscriber, IEnumerable<IEvent> messages)
         {
-            const string methodName = nameof(IBusSubscriber.Subscribe);
+            var subscribeMethod = subscriber.GetType().GetMethod(nameof(IBusSubscriber.Subscribe));
+            if (subscribeMethod is null)
+            {
+                return;
+            }
+
             foreach (var message in messages)
             {
-                var subscribeMethod = subscriber.GetType().GetMethod(methodName);
 
                 Task Handle(IServiceProvider sp, IEvent @event, object ctx) =>
                     sp.GetService<IEventHandler<IEvent>>().HandleAsync(@event);
@@ -109,11 +116,14 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         private static void SubscribeRejectedEvents(IBusSubscriber subscriber, IEnumerable<IRejectedEvent> messages)
         {
-            const string methodName = nameof(IBusSubscriber.Subscribe);
+            var subscribeMethod = subscriber.GetType().GetMethod(nameof(IBusSubscriber.Subscribe));
+            if (subscribeMethod is null)
+            {
+                return;
+            }
+
             foreach (var message in messages)
             {
-                var subscribeMethod = subscriber.GetType().GetMethod(methodName);
-
                 Task Handle(IServiceProvider sp, IRejectedEvent @event, object ctx) =>
                     sp.GetService<IEventHandler<IRejectedEvent>>().HandleAsync(@event);
 
