@@ -20,12 +20,11 @@ namespace Pacco.Services.Operations.Api
     {
         public static async Task Main(string[] args)
             => await WebHost.CreateDefaultBuilder(args)
-                .ConfigureServices(services =>
-                    services.AddOpenTracing()
-                        .AddConvey()
-                        .AddWebApi()
-                        .AddInfrastructure()
-                        .Build())
+                .ConfigureServices(services => services
+                    .AddConvey()
+                    .AddWebApi()
+                    .AddInfrastructure()
+                    .Build())
                 .Configure(app => app
                     .UseInfrastructure()
                     .UseEndpoints(endpoints => endpoints

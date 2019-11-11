@@ -5,6 +5,7 @@ using Convey.CQRS.Commands;
 using Convey.CQRS.Events;
 using Convey.CQRS.Queries;
 using Convey.Discovery.Consul;
+using Convey.Docs.Swagger;
 using Convey.HTTP;
 using Convey.LoadBalancing.Fabio;
 using Convey.MessageBrokers;
@@ -15,6 +16,7 @@ using Convey.Persistence.Redis;
 using Convey.Tracing.Jaeger;
 using Convey.Tracing.Jaeger.RabbitMQ;
 using Convey.WebApi;
+using Convey.WebApi.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -46,6 +48,8 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         public static IConveyBuilder AddInfrastructure(this IConveyBuilder builder)
         {
+            builder.Services.AddOpenTracing();
+            
             var requestsOptions = builder.GetOptions<RequestsOptions>("requests");
             builder.Services.AddSingleton(requestsOptions);
             builder.Services.AddTransient<ICommandHandler<ICommand>, GenericCommandHandler<ICommand>>()
@@ -69,12 +73,14 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddMetrics()
                 .AddJaeger()
                 .AddRedis()
-                .AddSignalR();
+                .AddSignalR()
+                .AddWebApiSwaggerDocs();
         }
 
         public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder app)
         {
             app.UseErrorHandler()
+                .UseSwaggerDocs()
                 .UseJaeger()
                 .UseInitializers()
                 .UseMetrics()
