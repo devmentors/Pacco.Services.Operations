@@ -21,7 +21,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Pacco.Services.Operations.Api.Handlers;
-using Pacco.Services.Operations.Api.Hubs;
 using Pacco.Services.Operations.Api.Services;
 using Pacco.Services.Operations.Api.Types;
 
@@ -82,7 +81,7 @@ namespace Pacco.Services.Operations.Api.Infrastructure
             app.UseErrorHandler()
                 .UseSwaggerDocs()
                 .UseJaeger()
-                .UseInitializers()
+                .UseConvey()
                 .UseMetrics()
                 .UseStaticFiles()
                 .UseRabbitMq()
