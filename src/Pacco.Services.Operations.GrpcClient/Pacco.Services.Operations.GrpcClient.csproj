@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <LangVersion>latest</LangVersion>
-        <RootNamespace>Pacco.Services.Operations.GrpcClient</RootNamespace>
         <OutputType>Exe</OutputType>
     </PropertyGroup>
 
