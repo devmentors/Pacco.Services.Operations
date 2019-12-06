@@ -29,7 +29,6 @@
     <PackageReference Include="Grpc.Tools" Version="2.25.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Redis" Version="1.1.5" />
-    <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.6.2" />
     <PackageReference Include="Convey.WebApi.Swagger" Version="0.3.*" />
   </ItemGroup>
 

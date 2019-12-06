@@ -47,8 +47,6 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         public static IConveyBuilder AddInfrastructure(this IConveyBuilder builder)
         {
-            builder.Services.AddOpenTracing();
-            
             var requestsOptions = builder.GetOptions<RequestsOptions>("requests");
             builder.Services.AddSingleton(requestsOptions);
             builder.Services.AddTransient<ICommandHandler<ICommand>, GenericCommandHandler<ICommand>>()
