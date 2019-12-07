@@ -26,7 +26,8 @@ namespace Pacco.Services.Operations.Api.Handlers
 
         public async Task HandleAsync(T @event)
         {
-            var correlationId = _messagePropertiesAccessor.MessageProperties?.CorrelationId;
+            var messageProperties = _messagePropertiesAccessor.MessageProperties;
+            var correlationId = messageProperties?.CorrelationId;
             if (string.IsNullOrWhiteSpace(correlationId))
             {
                 return;
@@ -38,14 +39,27 @@ namespace Pacco.Services.Operations.Api.Handlers
                 return;
             }
 
+            var sagaState = messageProperties.GetSagaState();
+            var operationState = sagaState ?? OperationState.Rejected;
             var (updated, operation) = await _operationsService.TrySetAsync(correlationId, context.User.Id,
-                context.Name, OperationState.Rejected, @event.Code, @event.Reason);
+                context.Name, operationState, @event.Code, @event.Reason);
             if (!updated)
             {
                 return;
             }
 
-            await _hubService.PublishOperationRejectedAsync(operation);
+            switch (operationState)
+            {
+                case OperationState.Pending:
+                    await _hubService.PublishOperationPendingAsync(operation);
+                    break;
+                case OperationState.Completed:
+                    await _hubService.PublishOperationCompletedAsync(operation);
+                    break;
+                case OperationState.Rejected:
+                    await _hubService.PublishOperationRejectedAsync(operation);
+                    break;
+            }
         }
     }
 }

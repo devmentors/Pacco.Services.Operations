@@ -72,6 +72,15 @@
       "sign_up_rejected"
     ]
   },
+  "orderMaker-service": {
+    "exchange": "orderMaker",
+    "events": [
+      "make_order_completed"
+    ],
+    "rejectedEvents": [
+      "make_order_rejected"
+    ]
+  },
   "orders-service": {
     "exchange": "orders",
     "commands": [
