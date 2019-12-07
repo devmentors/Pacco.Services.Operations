@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.MessageBrokers;
@@ -39,16 +40,15 @@ namespace Pacco.Services.Operations.Api.Handlers
                 return;
             }
 
-            var sagaState = messageProperties.GetSagaState();
-            var operationState = sagaState ?? OperationState.Pending;
+            var state = messageProperties.GetSagaState() ?? OperationState.Pending;
             var (updated, operation) = await _operationsService.TrySetAsync(correlationId, context.User.Id,
-                context.Name, operationState);
+                context.Name, state);
             if (!updated)
             {
                 return;
             }
 
-            switch (operationState)
+            switch (state)
             {
                 case OperationState.Pending:
                     await _hubService.PublishOperationPendingAsync(operation);
@@ -59,6 +59,8 @@ namespace Pacco.Services.Operations.Api.Handlers
                 case OperationState.Rejected:
                     await _hubService.PublishOperationRejectedAsync(operation);
                     break;
+                default:
+                    throw new ArgumentException($"Invalid operation state: {state}", nameof(state));
             }
         }
     }
