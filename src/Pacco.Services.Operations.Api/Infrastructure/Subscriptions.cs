@@ -61,6 +61,11 @@ namespace Pacco.Services.Operations.Api.Infrastructure
         private static IEnumerable<T> BindMessages<T>(ModuleBuilder moduleBuilder, string exchange,
             IEnumerable<string> messages) where T : class, IMessage, new()
         {
+            if (messages is null)
+            {
+                yield break;
+            }
+            
             foreach (var message in messages)
             {
                 var type = typeof(T);
@@ -79,6 +84,11 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         private static void SubscribeCommands(IBusSubscriber subscriber, IEnumerable<ICommand> messages)
         {
+            if (messages is null)
+            {
+                return;
+            }
+            
             var subscribeMethod = subscriber.GetType().GetMethod(nameof(IBusSubscriber.Subscribe));
             if (subscribeMethod is null)
             {
@@ -97,6 +107,11 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         private static void SubscribeEvents(IBusSubscriber subscriber, IEnumerable<IEvent> messages)
         {
+            if (messages is null)
+            {
+                return;
+            }
+            
             var subscribeMethod = subscriber.GetType().GetMethod(nameof(IBusSubscriber.Subscribe));
             if (subscribeMethod is null)
             {
@@ -105,7 +120,6 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
             foreach (var message in messages)
             {
-
                 Task Handle(IServiceProvider sp, IEvent @event, object ctx) =>
                     sp.GetService<IEventHandler<IEvent>>().HandleAsync(@event);
 
@@ -116,6 +130,11 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
         private static void SubscribeRejectedEvents(IBusSubscriber subscriber, IEnumerable<IRejectedEvent> messages)
         {
+            if (messages is null)
+            {
+                return;
+            }
+            
             var subscribeMethod = subscriber.GetType().GetMethod(nameof(IBusSubscriber.Subscribe));
             if (subscribeMethod is null)
             {
