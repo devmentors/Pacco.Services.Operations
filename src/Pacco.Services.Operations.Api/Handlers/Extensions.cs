@@ -1,3 +1,4 @@
+using System.Text;
 using Convey.MessageBrokers;
 using Pacco.Services.Operations.Api.Types;
 
@@ -13,13 +14,15 @@ namespace Pacco.Services.Operations.Api.Handlers
                 return null;
             }
 
-            return (saga as string)?.ToLowerInvariant() switch
-            {
-                "pending" => OperationState.Pending,
-                "completed" => OperationState.Completed,
-                "rejected" => OperationState.Rejected,
-                _ => (OperationState?) null
-            };
+            return saga is byte[] sagaBytes
+                ? Encoding.UTF8.GetString(sagaBytes).ToLowerInvariant() switch
+                {
+                    "pending" => OperationState.Pending,
+                    "completed" => OperationState.Completed,
+                    "rejected" => OperationState.Rejected,
+                    _ => (OperationState?) null
+                }
+                : null;
         }
     }
 }
