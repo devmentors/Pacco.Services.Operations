@@ -35,7 +35,7 @@ namespace Pacco.Services.Operations.Api.Handlers
             }
 
             var context = _contextAccessor.GetCorrelationContext();
-            var name = string.IsNullOrWhiteSpace(context?.Name) ? typeof(T).Name.ToUnderscoreCase() : context.Name;
+            var name = string.IsNullOrWhiteSpace(context?.Name) ? typeof(T).Name : context.Name;
             var userId = string.IsNullOrWhiteSpace(context?.User?.Id)
                 ? _messagePropertiesAccessor.MessageProperties.UserId
                 : context.User.Id;
