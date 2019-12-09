@@ -35,14 +35,13 @@ namespace Pacco.Services.Operations.Api.Handlers
             }
 
             var context = _contextAccessor.GetCorrelationContext();
-            if (context is null)
-            {
-                return;
-            }
+            var name = string.IsNullOrWhiteSpace(context?.Name) ? typeof(T).Name.ToUnderscoreCase() : context.Name;
+            var userId = string.IsNullOrWhiteSpace(context?.User?.Id)
+                ? _messagePropertiesAccessor.MessageProperties.UserId
+                : context.User.Id;
 
             var state = messageProperties.GetSagaState() ?? OperationState.Pending;
-            var (updated, operation) = await _operationsService.TrySetAsync(correlationId, context.User.Id,
-                context.Name, state);
+            var (updated, operation) = await _operationsService.TrySetAsync(correlationId, userId, name, state);
             if (!updated)
             {
                 return;

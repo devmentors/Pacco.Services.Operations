@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Convey;
 using Convey.Auth;
 using Convey.CQRS.Commands;
@@ -103,5 +104,9 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
             return builder;
         }
+        
+        public static string ToUnderscoreCase(this string str)
+            => string.Concat(str.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x : x.ToString()))
+                .ToLowerInvariant();
     }
 }
