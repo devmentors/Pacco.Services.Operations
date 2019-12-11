@@ -35,7 +35,7 @@ namespace Pacco.Services.Operations.Api.Handlers
             }
 
             var context = _contextAccessor.GetCorrelationContext();
-            var name = string.IsNullOrWhiteSpace(context?.Name) ? typeof(T).Name : context.Name;
+            var name = string.IsNullOrWhiteSpace(context?.Name) ? @event.GetType().Name : context.Name;
             var userId = context?.User?.Id;
             var state = messageProperties.GetSagaState() ?? OperationState.Rejected;
             var (updated, operation) = await _operationsService.TrySetAsync(correlationId, userId, name, state,
