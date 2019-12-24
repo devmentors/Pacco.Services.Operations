@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Convey;
 using Convey.Auth;
 using Convey.CQRS.Commands;

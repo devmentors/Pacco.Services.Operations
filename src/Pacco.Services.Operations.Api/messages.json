@@ -72,7 +72,7 @@
       "sign_up_rejected"
     ]
   },
-  "orderMaker-service": {
+  "ordermaker-service": {
     "exchange": "order_maker",
     "events": [
       "make_order_completed"

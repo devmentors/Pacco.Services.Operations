@@ -97,12 +97,12 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
             foreach (var message in messages)
             {
-                Task Handle(IServiceProvider sp, ICommand command, object ctx) =>
-                    sp.GetService<ICommandHandler<ICommand>>().HandleAsync(command);
-
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
                     new object[] {(Func<IServiceProvider, ICommand, object, Task>) Handle});
             }
+            
+            static Task Handle(IServiceProvider sp, ICommand command, object ctx) =>
+                sp.GetService<ICommandHandler<ICommand>>().HandleAsync(command);
         }
 
         private static void SubscribeEvents(IBusSubscriber subscriber, IEnumerable<IEvent> messages)
@@ -120,12 +120,12 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
             foreach (var message in messages)
             {
-                Task Handle(IServiceProvider sp, IEvent @event, object ctx) =>
-                    sp.GetService<IEventHandler<IEvent>>().HandleAsync(@event);
-
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
                     new object[] {(Func<IServiceProvider, IEvent, object, Task>) Handle});
             }
+
+            static Task Handle(IServiceProvider sp, IEvent @event, object ctx) =>
+                sp.GetService<IEventHandler<IEvent>>().HandleAsync(@event);
         }
 
         private static void SubscribeRejectedEvents(IBusSubscriber subscriber, IEnumerable<IRejectedEvent> messages)
@@ -143,12 +143,12 @@ namespace Pacco.Services.Operations.Api.Infrastructure
 
             foreach (var message in messages)
             {
-                Task Handle(IServiceProvider sp, IRejectedEvent @event, object ctx) =>
-                    sp.GetService<IEventHandler<IRejectedEvent>>().HandleAsync(@event);
-
                 subscribeMethod.MakeGenericMethod(message.GetType()).Invoke(subscriber,
                     new object[] {(Func<IServiceProvider, IRejectedEvent, object, Task>) Handle});
             }
+
+            static Task Handle(IServiceProvider sp, IRejectedEvent @event, object ctx) =>
+                sp.GetService<IEventHandler<IRejectedEvent>>().HandleAsync(@event);
         }
 
         private class ServiceMessages
