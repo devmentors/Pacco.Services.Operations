@@ -57,7 +57,9 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddSingleton<IOperationsService, OperationsService>();
             builder.Services.AddGrpc();
 
-            return builder.AddJwt()
+            return builder
+                .AddErrorHandler<ExceptionToResponseMapper>()
+                .AddJwt()
                 .AddCommandHandlers()
                 .AddEventHandlers()
                 .AddQueryHandlers()
