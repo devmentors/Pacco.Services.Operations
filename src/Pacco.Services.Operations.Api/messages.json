@@ -73,7 +73,7 @@
     ]
   },
   "ordermaker-service": {
-    "exchange": "order_maker",
+    "exchange": "ordermaker",
     "events": [
       "make_order_completed"
     ],

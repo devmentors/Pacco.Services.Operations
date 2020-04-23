@@ -24,9 +24,9 @@
     <PackageReference Include="Convey.Tracing.Jaeger" Version="0.4.*" />
     <PackageReference Include="Convey.Tracing.Jaeger.RabbitMQ" Version="0.4.*" />
     <PackageReference Include="Convey.WebApi.CQRS" Version="0.4.*" />
-    <PackageReference Include="Google.Protobuf" Version="3.11.2" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.26.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.26.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.11.4" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.28.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.28.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Redis" Version="1.1.5" />
     <PackageReference Include="Convey.WebApi.Swagger" Version="0.4.*" />
@@ -38,6 +38,10 @@
 
   <ItemGroup>
     <Protobuf Include="Operations.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="certs\**" CopyToPublishDirectory="Always" />
   </ItemGroup>
 
 </Project>
