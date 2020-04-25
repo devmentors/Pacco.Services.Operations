@@ -13,6 +13,7 @@ using Convey.MessageBrokers.RabbitMQ;
 using Convey.Metrics.AppMetrics;
 using Convey.Persistence.MongoDB;
 using Convey.Persistence.Redis;
+using Convey.Security;
 using Convey.Tracing.Jaeger;
 using Convey.Tracing.Jaeger.RabbitMQ;
 using Convey.WebApi;
@@ -73,7 +74,8 @@ namespace Pacco.Services.Operations.Api.Infrastructure
                 .AddJaeger()
                 .AddRedis()
                 .AddSignalR()
-                .AddWebApiSwaggerDocs();
+                .AddWebApiSwaggerDocs()
+                .AddSecurity();
         }
 
         public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder app)
