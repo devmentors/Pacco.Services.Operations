@@ -24,7 +24,7 @@ namespace Pacco.Services.Operations.Api.Hubs
             try
             {
                 var payload = _jwtHandler.GetTokenPayload(token);
-                if (payload == null)
+                if (payload is null)
                 {
                     await DisconnectAsync();
                     
