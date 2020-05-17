@@ -29,6 +29,7 @@ namespace Pacco.Services.Operations.GrpcClient
 
         static async Task Main(string[] args)
         {
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             var address = GetAddress(args);
             
             // Only for the local development purposes.
@@ -72,7 +73,7 @@ namespace Pacco.Services.Operations.GrpcClient
                 port = 50050;
             }
             
-            return $"https://{host}:{port}";
+            return $"http://{host}:{port}";
         }
 
         private static async Task InitAsync()

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Pacco.Services.Operations.Api.Hubs;
 using Pacco.Services.Operations.Api.Infrastructure;
@@ -20,6 +21,13 @@ namespace Pacco.Services.Operations.Api
     {
         public static async Task Main(string[] args)
             => await WebHost.CreateDefaultBuilder(args)
+                .ConfigureKestrel((context, options) =>
+                {
+                    options.ListenLocalhost(5005,
+                        o => o.Protocols = HttpProtocols.Http2);
+                    options.ListenLocalhost(50050,
+                        o => o.Protocols = HttpProtocols.Http2);
+                })
                 .ConfigureServices(services => services
                     .AddConvey()
                     .AddWebApi()
